@@ -24,9 +24,9 @@
 set -e
 
 SDK_10_VERSION="10.0.18362.0"
-MSVC_VERSION="14.25.28610"
+MSVC_VERSION="14.27.29110"
 
-VC_PATH="/c/Program Files (x86)/Microsoft Visual Studio/2019/Community"
+VC_PATH="S:/Progra~1/Microsoft Visual Studio/2019/Community"
 
 SDK_PATH="C:\Program Files (x86)\Windows Kits"
 

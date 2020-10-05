@@ -83,6 +83,25 @@ namespace dmGameSystem
                     dmLogError("%s", "Capsules are not supported in 2D.");
             }
             break;
+        case dmPhysicsDDF::ConvexShape::TYPE_TETRAHEDRON:
+            if (convex_shape->m_Data.m_Count != 8)
+            {
+                dmLogError("Invalid tetrahedron shape");
+                result = false;
+            }
+            else
+            {
+                // pass to dmPhysics the 4 points stored in 2 Vector4s (a,b in first. c,d in second)
+                if (context->m_3D)
+                    resource->m_Shape3D = dmPhysics::NewTetrahedronShape3D(context->m_Context3D,
+                    Vectormath::Aos::Vector3(convex_shape->m_Data[0], convex_shape->m_Data[1], convex_shape->m_Data[2]),Vectormath::Aos::Vector3(convex_shape->m_Data[3], convex_shape->m_Data[4], convex_shape->m_Data[5]),
+                    Vectormath::Aos::Vector3(convex_shape->m_Data[6], convex_shape->m_Data[7], convex_shape->m_Data[8]),Vectormath::Aos::Vector3(convex_shape->m_Data[9], convex_shape->m_Data[10], convex_shape->m_Data[11]));
+                else
+                    resource->m_Shape2D = dmPhysics::NewTetrahedronShape2D(context->m_Context2D,
+                    Vectormath::Aos::Vector3(convex_shape->m_Data[0], convex_shape->m_Data[1], convex_shape->m_Data[2]),Vectormath::Aos::Vector3(convex_shape->m_Data[3], convex_shape->m_Data[4], convex_shape->m_Data[5]),
+                    Vectormath::Aos::Vector3(convex_shape->m_Data[6], convex_shape->m_Data[7], convex_shape->m_Data[8]),Vectormath::Aos::Vector3(convex_shape->m_Data[9], convex_shape->m_Data[10], convex_shape->m_Data[11]));
+            }
+            break;
         case dmPhysicsDDF::ConvexShape::TYPE_HULL:
             if (convex_shape->m_Data.m_Count < 9)
             {

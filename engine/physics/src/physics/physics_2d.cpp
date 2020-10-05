@@ -54,7 +54,7 @@ namespace dmPhysics
     , m_SetWorldTransformCallback(params.m_SetWorldTransformCallback)
     , m_AllowDynamicTransforms(context->m_AllowDynamicTransforms)
     {
-    	m_RayCastRequests.SetCapacity(context->m_RayCastLimit);
+        m_RayCastRequests.SetCapacity(context->m_RayCastLimit);
         OverlapCacheInit(&m_TriggerOverlaps);
     }
 
@@ -569,6 +569,16 @@ namespace dmPhysics
         b2PolygonShape* shape = new b2PolygonShape();
         float scale = context->m_Scale;
         shape->SetAsBox(half_extents.getX() * scale, half_extents.getY() * scale);
+        return shape;
+    }
+    
+    HCollisionShape2D NewTetrahedronShape2D(HContext2D context, const Vectormath::Aos::Vector3& a_pt, const Vectormath::Aos::Vector3& b_pt, const Vectormath::Aos::Vector3& c_pt, const Vectormath::Aos::Vector3& d_pt)
+    {
+        b2PolygonShape* shape = new b2PolygonShape();
+        float scale = context->m_Scale;
+		// TODO: create the tetrahedron shape for 2D
+		// current code uses first point to make a rect
+        shape->SetAsBox(a_pt.getX() * scale, a_pt.getY() * scale);
         return shape;
     }
 

@@ -43,3 +43,12 @@ com.dynamo.cr/com.dynamo.cr.bob.test/src/com/dynamo/bob/archive/EngineVersion.ja
 
 /local_sdks
 external/**/build/
+packages/emsdk-1.39.16.tar.gz
+packages/Microsoft-Visual-Studio-2019-14.27.29110.tar.gz
+packages/WindowsKits-10.0.18362.0.tar.gz
+editor/lein
+editor/leinhome/.lein/self-installs/leiningen-2.9.4-standalone.jar.pending.shasum
+editor/sha256sum.exe
+scripts/build.py
+scripts/build.py
+scripts/package/package_win32_sdk.sh

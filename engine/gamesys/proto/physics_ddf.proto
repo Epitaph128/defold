@@ -15,6 +15,7 @@ message ConvexShape
         TYPE_BOX = 1 [(displayName) = "Box"];
         TYPE_CAPSULE = 2 [(displayName) = "Capsule"];
         TYPE_HULL = 3 [(displayName) = "Hull"];
+		TYPE_TETRAHEDRON = 4 [(displayName) = "Tetrahedron"];
     }
 
     required Type shape_type = 1;
@@ -44,6 +45,7 @@ message CollisionShape
         TYPE_BOX = 1;
         TYPE_CAPSULE = 2;
         TYPE_HULL = 3;
+		TYPE_TETRAHEDRON = 4;
     }
 
     /*

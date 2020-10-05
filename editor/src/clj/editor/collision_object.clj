@@ -49,7 +49,10 @@
                   :physics-types #{"2D" "3D"}}
    :type-capsule {:label "Capsule"
                   :icon  "icons/32/Icons_46-Collistionshape-convex-Cylinder.png"
-                  :physics-types #{"3D"}}})
+                  :physics-types #{"3D"}}
+   :type-tetrahedron {:label "Tetrahedron"
+                  :icon  "icons/32/Icons_46-Collistionshape-convex-Box.png"
+                  :physics-types #{"2D" "3D"}}})
 
 (defn- shape-type-label
   [shape-type]
@@ -155,14 +158,14 @@
                                                       scene-shapes/disc-lines
                                                       scene-shapes/capsule-lines)}}}]}))
 
-(g/defnk produce-box-shape-scene
-  [_node-id transform dimensions color node-outline-key project-physics-type]
-  (let [[w h d] dimensions
-        ext-x (* 0.5 w)
-        ext-y (* 0.5 h)
+(g/defnk produce-tetrahedron-shape-scene
+  [_node-id transform points color node-outline-key project-physics-type]
+  (let [[[ax ay az] [bx by bz] [cx cy cz] [dx dy dz]] points
+        ext-x (* 0.5 ax)
+        ext-y (* 0.5 ay)
         ext-z (case project-physics-type
                 "2D" 0.0
-                "3D" (* 0.5 d))
+                "3D" (* 0.5 ax))
         ext [ext-x ext-y ext-z]
         neg-ext [(- ext-x) (- ext-y) (- ext-z)]
         aabb (geom/coords->aabb ext neg-ext)
@@ -192,6 +195,44 @@
 
                                                  (zero? ext-z)
                                                  (assoc :point-count 8))}}]}))
+
+(g/defnk produce-box-shape-scene
+[_node-id transform dimensions color node-outline-key project-physics-type]
+(let [[w h d] dimensions
+    ext-x (* 0.5 w)
+    ext-y (* 0.5 h)
+    ext-z (case project-physics-type
+            "2D" 0.0
+            "3D" (* 0.5 d))
+    ext [ext-x ext-y ext-z]
+    neg-ext [(- ext-x) (- ext-y) (- ext-z)]
+    aabb (geom/coords->aabb ext neg-ext)
+    point-scale (float-array ext)]
+{:node-id _node-id
+ :node-outline-key node-outline-key
+ :transform transform
+ :aabb aabb
+ :renderable {:render-fn render-triangles-uniform-scale
+              :tags #{:collision-shape}
+              :passes [pass/transparent pass/selection]
+              :user-data (cond-> {:color color
+                                  :point-scale point-scale
+                                  :geometry scene-shapes/box-triangles}
+
+                                 (zero? ext-z)
+                                 (assoc :double-sided true
+                                        :point-count 6))}
+ :children [{:node-id _node-id
+             :aabb aabb
+             :renderable {:render-fn render-lines-uniform-scale
+                          :tags #{:collision-shape :outline}
+                          :passes [pass/outline]
+                          :user-data (cond-> {:color color
+                                              :point-scale point-scale
+                                              :geometry scene-shapes/box-lines}
+
+                                             (zero? ext-z)
+                                             (assoc :point-count 8))}}]}))
 
 (g/defnk produce-capsule-shape-scene
   [_node-id transform diameter height color node-outline-key project-physics-type]
@@ -252,7 +293,6 @@
   [node-id]
   [:scale-xy])
 
-
 (g/defnode BoxShape
   (inherits Shape)
 
@@ -279,6 +319,30 @@
     (g/set-property node-id :dimensions [(properties/round-scalar (Math/abs (* w (.getX delta))))
                                          (properties/round-scalar (Math/abs (* h (.getY delta))))
                                          (properties/round-scalar (Math/abs (* d (.getZ delta))))])))
+                                         
+(g/defnode TetrahedronShape
+  (inherits Shape)
+
+  (property points types/Vec4
+            (dynamic edit-type (g/constantly {:type [types/Vec3 types/Vec3 types/Vec3 types/Vec3] :labels [["a.x" "a.y" "a.z"] ["b.x" "b.y" "b.z"] ["c.x" "c.y" "c.z"] ["d.x" "d.y" "d.z"]]})))
+
+  (display-order [Shape :points])
+
+  (output scene g/Any produce-tetrahedron-shape-scene)
+
+  (output shape-data g/Any (g/fnk [points]
+                             (let [[[ax ay bx by][cx cy dx dy]] points]
+                               [[(ax) (ay) (bx) (by)][(cx cy dx dy)]]))))
+
+(defmethod scene-tools/manip-scalable? ::TetrahedronShape [_node-id] true)
+
+(defmethod scene-tools/manip-scale ::TetrahedronShape
+  [evaluation-context node-id ^Vector3d delta]
+  (let [[[ax ay bx by][cx cy dx dy]] (g/node-value node-id :points evaluation-context)]
+	(comment "TODO: Figure out what to do here :P")
+    (g/set-property node-id :points [(properties/round-scalar (Math/abs (* ax (.getX delta))))
+                                         (properties/round-scalar (Math/abs (* ay (.getY delta))))
+                                         (properties/round-scalar (Math/abs (* bx (.getZ delta))))])))
 
 (g/defnode CapsuleShape
   (inherits Shape)
@@ -335,6 +399,10 @@
   [shape [r h]]
   {:diameter (* 2 r)
    :height h})
+   
+(defmethod decode-shape-data :type-tetrahedron
+  [shape [[ext-ax ext-ay ext-az] [ext-bx ext-by ext-bz] [ext-cx ext-cy ext-cz] [ext-dx ext-dy ext-dz]]]
+  {:points [[ext-ax ext-ay ext-az] [ext-bx ext-by ext-bz] [ext-cx ext-cy ext-cz] [ext-dx ext-dy ext-dz]]})
 
 (defn make-shape-node
   [parent {:keys [shape-type] :as shape}]
@@ -342,7 +410,8 @@
         node-type (case shape-type
                     :type-sphere SphereShape
                     :type-box BoxShape
-                    :type-capsule CapsuleShape)
+                    :type-capsule CapsuleShape
+                    :type-tetrahedron TetrahedronShape)
         node-props (dissoc shape :index :count)]
     (g/make-nodes
       graph-id
@@ -573,7 +642,8 @@
          (case shape-type
            :type-sphere {:diameter 20.0}
            :type-box {:dimensions [20.0 20.0 20.0]}
-           :type-capsule {:diameter 20.0 :height 40.0})))
+           :type-capsule {:diameter 20.0 :height 40.0}
+           :type-tetrahedron {:points [[1.0 0.0 -0.70711] [-1.0 0.0 -0.70711] [0.0 1.0 0.70711] [0.0 -1.0 0.70711]]})))
 
 (defn- add-shape-handler
   [collision-object-node shape-type select-fn]

@@ -415,6 +415,30 @@ namespace dmPhysics
     HCollisionShape2D NewCircleShape2D(HContext2D context, float radius);
 
     /**
+     * Create a new 2D tetrahedron shape
+     *
+     * @param context Physics context
+     * @param a_pt Point A
+     * @param b_pt Point B
+     * @param c_pt Point C
+     * @param d_pt Point D
+     * @return Shape
+     */
+    HCollisionShape3D NewTetrahedronShape3D(HContext3D context, const Vectormath::Aos::Vector3& a_pt, const Vectormath::Aos::Vector3& b_pt, const Vectormath::Aos::Vector3& c_pt, const Vectormath::Aos::Vector3& d_pt);
+    
+    /**
+     * Create a new 2D tetrahedron shape
+     *
+     * @param context Physics context
+     * @param a_pt Point A
+     * @param b_pt Point B
+     * @param c_pt Point C
+     * @param d_pt Point D
+     * @return Shape
+     */
+    HCollisionShape2D NewTetrahedronShape2D(HContext2D context, const Vectormath::Aos::Vector3& a_pt, const Vectormath::Aos::Vector3& b_pt, const Vectormath::Aos::Vector3& c_pt, const Vectormath::Aos::Vector3& d_pt);
+    
+    /**
      * Create a new 3D box shape
      *
      * @param context Physics context

@@ -605,6 +605,15 @@ namespace dmPhysics
         ToBt(half_extents, dims, context->m_Scale);
         return new btBoxShape(dims);
     }
+    
+    HCollisionShape3D NewTetrahedronShape3D(HContext3D context, const Vectormath::Aos::Vector3& a_pt, const Vectormath::Aos::Vector3& b_pt, const Vectormath::Aos::Vector3& c_pt, const Vectormath::Aos::Vector3& d_pt)
+    {
+		// TODO: Create the Tetrahedron shape for 3D
+		// current code uses first point to make a box
+		btVector3 dims;
+        ToBt(a_pt, dims, context->m_Scale);
+        return new btBoxShape(dims);
+    }
 
     HCollisionShape3D NewCapsuleShape3D(HContext3D context, float radius, float height)
     {
